@@ -69,16 +69,14 @@ export default {
     cars: [],
     editedIndex: -1,
     editedItem: {
-      _id: 0,
       name: "",
       count: 0,
-      time: new Date()
+      time: new Date().toLocaleString()
     },
     defaultItem: {
-      _id: 0,
       name: "",
       count: 0,
-      time: new Date()
+      time: new Date().toLocaleString()
     }
   }),
   computed: {
@@ -120,15 +118,25 @@ export default {
         .get("http://localhost:3000/cars")
         .then(({ data }) => {
           this.cars = data;
-          console.log(`cars loaded: ${this.cars}`);
+          //parse time string to correct format
+          this.cars.forEach(car => {
+            car.time = new Date(Date.parse(car.time)).toLocaleString();
+          });
         })
         .catch(error => {
           console.log(error);
         });
     },
     save() {
+      if (this.editedItem.count)
+        this.editedItem.count = Number(this.editedItem.count);
+
+      //update a entry
       if (this.editedIndex > -1) {
+        console.log(this.editedItem);
+
         Object.assign(this.cars[this.editedIndex], this.editedItem);
+
         axios
           .put(
             `http://localhost:3000/cars/${this.editedItem._id}`,
@@ -140,8 +148,19 @@ export default {
           .catch(error => {
             console.log(error);
           });
-      } else {
-        this.cars.push(this.editedItem);
+      }
+      //create new entry
+      else {
+        axios
+          .post(`http://localhost:3000/cars`, this.editedItem)
+          .then(response => {
+            //save the new Id to car obj
+            this.editedItem._id = response.data.insertedId;
+            this.cars.push(this.editedItem);
+          })
+          .catch(error => {
+            console.log(error);
+          });
       }
       this.close();
     }
