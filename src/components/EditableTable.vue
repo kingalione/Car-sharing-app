@@ -1,8 +1,8 @@
 <template>
-  <v-data-table :headers="headers" :items="desserts" sort-by="name" class="elevation-1">
+  <v-data-table :headers="headers" :items="cars" sort-by="name" class="elevation-1">
     <template v-slot:top>
       <v-toolbar flat color="white">
-        <v-toolbar-title>My CRUD</v-toolbar-title>
+        <v-toolbar-title>My Cars</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-dialog v-model="dialog" max-width="500px">
@@ -50,6 +50,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data: () => ({
     dialog: false,
@@ -64,14 +66,16 @@ export default {
       { text: "Time", value: "time" },
       { text: "Actions", value: "action", sortable: false }
     ],
-    desserts: [],
+    cars: [],
     editedIndex: -1,
     editedItem: {
+      _id: 0,
       name: "",
       count: 0,
       time: new Date()
     },
     defaultItem: {
+      _id: 0,
       name: "",
       count: 0,
       time: new Date()
@@ -92,36 +96,17 @@ export default {
   },
   methods: {
     initialize() {
-      this.desserts = [
-        {
-          _id: "5d5685cf1c9d44000015f149",
-          name: "Magnus",
-          count: 0,
-          time: "2019-12-31T23:00:00.000Z"
-        },
-        {
-          _id: "5d56863782fb0f6b6f76259f",
-          name: "Koloss",
-          count: 123,
-          time: "2019-08-16T10:32:23.251Z"
-        },
-        {
-          _id: "5d569d4fccf59377166c3aac",
-          name: "Mehmed",
-          count: 50,
-          test: "test"
-        }
-      ];
+      this.load();
     },
     editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      this.editedIndex = this.cars.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
     deleteItem(item) {
-      const index = this.desserts.indexOf(item);
+      const index = this.cars.indexOf(item);
       confirm("Are you sure you want to delete this item?") &&
-        this.desserts.splice(index, 1);
+        this.cars.splice(index, 1);
     },
     close() {
       this.dialog = false;
@@ -130,11 +115,33 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
+    load() {
+      axios
+        .get("http://localhost:3000/cars")
+        .then(({ data }) => {
+          this.cars = data;
+          console.log(`cars loaded: ${this.cars}`);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
     save() {
       if (this.editedIndex > -1) {
-        Object.assign(this.desserts[this.editedIndex], this.editedItem);
+        Object.assign(this.cars[this.editedIndex], this.editedItem);
+        axios
+          .put(
+            `http://localhost:3000/cars/${this.editedItem._id}`,
+            this.editedItem
+          )
+          .then(response => {
+            console.log(response);
+          })
+          .catch(error => {
+            console.log(error);
+          });
       } else {
-        this.desserts.push(this.editedItem);
+        this.cars.push(this.editedItem);
       }
       this.close();
     }
