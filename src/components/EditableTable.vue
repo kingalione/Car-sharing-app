@@ -1,8 +1,8 @@
 <template>
-  <v-data-table :headers="headers" :items="desserts" sort-by="calories" class="elevation-1">
+  <v-data-table :headers="headers" :items="cars" sort-by="name" class="elevation-1">
     <template v-slot:top>
       <v-toolbar flat color="white">
-        <v-toolbar-title>My CRUD</v-toolbar-title>
+        <v-toolbar-title>My Cars</v-toolbar-title>
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-dialog v-model="dialog" max-width="500px">
@@ -18,19 +18,13 @@
               <v-container>
                 <v-row>
                   <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.name" label="Dessert name"></v-text-field>
+                    <v-text-field v-model="editedItem.name" label="Car name"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.calories" label="Calories"></v-text-field>
+                    <v-text-field v-model="editedItem.count" label="Count"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.fat" label="Fat (g)"></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.carbs" label="Carbs (g)"></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="editedItem.protein" label="Protein (g)"></v-text-field>
+                    <v-text-field v-model="editedItem.time" label="Time"></v-text-field>
                   </v-col>
                 </v-row>
               </v-container>
@@ -56,37 +50,33 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data: () => ({
     dialog: false,
     headers: [
       {
-        text: "Dessert (100g serving)",
+        text: "Car name",
         align: "left",
         sortable: false,
         value: "name"
       },
-      { text: "Calories", value: "calories" },
-      { text: "Fat (g)", value: "fat" },
-      { text: "Carbs (g)", value: "carbs" },
-      { text: "Protein (g)", value: "protein" },
+      { text: "Count", value: "count" },
+      { text: "Time", value: "time" },
       { text: "Actions", value: "action", sortable: false }
     ],
-    desserts: [],
+    cars: [],
     editedIndex: -1,
     editedItem: {
       name: "",
-      calories: 0,
-      fat: 0,
-      carbs: 0,
-      protein: 0
+      count: 0,
+      time: new Date().toLocaleString()
     },
     defaultItem: {
       name: "",
-      calories: 0,
-      fat: 0,
-      carbs: 0,
-      protein: 0
+      count: 0,
+      time: new Date().toLocaleString()
     }
   }),
   computed: {
@@ -104,88 +94,17 @@ export default {
   },
   methods: {
     initialize() {
-      this.desserts = [
-        {
-          name: "Frozen Yogurt",
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0
-        },
-        {
-          name: "Ice cream sandwich",
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3
-        },
-        {
-          name: "Eclair",
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0
-        },
-        {
-          name: "Cupcake",
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3
-        },
-        {
-          name: "Gingerbread",
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9
-        },
-        {
-          name: "Jelly bean",
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0
-        },
-        {
-          name: "Lollipop",
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0
-        },
-        {
-          name: "Honeycomb",
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5
-        },
-        {
-          name: "Donut",
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9
-        },
-        {
-          name: "KitKat",
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7
-        }
-      ];
+      this.load();
     },
     editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      this.editedIndex = this.cars.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
     deleteItem(item) {
-      const index = this.desserts.indexOf(item);
+      const index = this.cars.indexOf(item);
       confirm("Are you sure you want to delete this item?") &&
-        this.desserts.splice(index, 1);
+        this.cars.splice(index, 1);
     },
     close() {
       this.dialog = false;
@@ -194,11 +113,54 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
+    load() {
+      axios
+        .get("http://localhost:3000/cars")
+        .then(({ data }) => {
+          this.cars = data;
+          //parse time string to correct format
+          this.cars.forEach(car => {
+            car.time = new Date(Date.parse(car.time)).toLocaleString();
+          });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
     save() {
+      if (this.editedItem.count)
+        this.editedItem.count = Number(this.editedItem.count);
+
+      //update a entry
       if (this.editedIndex > -1) {
-        Object.assign(this.desserts[this.editedIndex], this.editedItem);
-      } else {
-        this.desserts.push(this.editedItem);
+        console.log(this.editedItem);
+
+        Object.assign(this.cars[this.editedIndex], this.editedItem);
+
+        axios
+          .put(
+            `http://localhost:3000/cars/${this.editedItem._id}`,
+            this.editedItem
+          )
+          .then(response => {
+            console.log(response);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      }
+      //create new entry
+      else {
+        axios
+          .post(`http://localhost:3000/cars`, this.editedItem)
+          .then(response => {
+            //save the new Id to car obj
+            this.editedItem._id = response.data.insertedId;
+            this.cars.push(this.editedItem);
+          })
+          .catch(error => {
+            console.log(error);
+          });
       }
       this.close();
     }
