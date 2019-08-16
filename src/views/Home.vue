@@ -1,14 +1,14 @@
 <template>
-  <HelloWorld />
+  <EditableTable />
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import HelloWorld from '../components/HelloWorld.vue';
+import EditableTable from '../components/EditableTable.vue';
 
 export default Vue.extend({
   components: {
-    HelloWorld,
+    EditableTable,
   },
 });
 </script>
