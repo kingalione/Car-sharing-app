@@ -3,7 +3,7 @@
 ## Import docker file
 
 ```
-
+docker import car-sharing-app.tar
 ```
 
 ## Start app with docker container
