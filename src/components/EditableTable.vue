@@ -71,12 +71,12 @@ export default {
     editedItem: {
       name: "",
       count: 0,
-      time: new Date().toLocaleString()
+      time: new Date()
     },
     defaultItem: {
       name: "",
       count: 0,
-      time: new Date().toLocaleString()
+      time: new Date()
     }
   }),
   computed: {
@@ -102,9 +102,19 @@ export default {
       this.dialog = true;
     },
     deleteItem(item) {
-      const index = this.cars.indexOf(item);
-      confirm("Are you sure you want to delete this item?") &&
-        this.cars.splice(index, 1);
+      if (confirm("Are you sure you want to delete this item?") === true) {
+        axios
+          .delete(`http://localhost:3000/cars/${item._id}`)
+          .then(response => {
+            console.log(response);
+
+            const index = this.cars.indexOf(item);
+            this.cars.splice(index, 1);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      }
     },
     close() {
       this.dialog = false;
@@ -120,7 +130,7 @@ export default {
           this.cars = data;
           //parse time string to correct format
           this.cars.forEach(car => {
-            car.time = new Date(Date.parse(car.time)).toLocaleString();
+            car.time = new Date(Date.parse(car.time));
           });
         })
         .catch(error => {
@@ -151,6 +161,8 @@ export default {
       }
       //create new entry
       else {
+        console.log(this.editedItem);
+
         axios
           .post(`http://localhost:3000/cars`, this.editedItem)
           .then(response => {
