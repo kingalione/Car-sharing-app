@@ -106,8 +106,6 @@ export default {
         axios
           .delete(`http://localhost:3000/cars/${item._id}`)
           .then(response => {
-            console.log(response);
-
             const index = this.cars.indexOf(item);
             this.cars.splice(index, 1);
           })
@@ -139,8 +137,6 @@ export default {
 
       //update a entry
       if (this.editedIndex > -1) {
-        console.log(this.editedItem);
-
         Object.assign(this.cars[this.editedIndex], this.editedItem);
 
         axios
@@ -148,19 +144,15 @@ export default {
             `http://localhost:3000/cars/${this.editedItem._id}`,
             this.editedItem
           )
-          .then(response => {
-            console.log(response);
-          })
+          .then(response => {})
           .catch(error => {
             console.log(error);
           });
       }
       //create new entry
       else {
-        console.log(this.editedItem);
-
         axios
-          .post(`http://localhost:3000/cars`, this.editedItem)
+          .post("http://localhost:3000/cars", this.editedItem)
           .then(response => {
             //save the new Id to car obj
             this.editedItem._id = response.data.insertedId;
