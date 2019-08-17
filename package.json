@@ -55,11 +55,16 @@
       "@vue/prettier",
       "@vue/typescript"
     ],
-    "rules": {},
+    "rules": {
+      "no-console": 0
+    },
     "parserOptions": {
       "parser": "@typescript-eslint/parser"
     }
   },
+  "eslintIgnore": [
+    "./node_modules/*"
+  ],
   "postcss": {
     "plugins": {
       "autoprefixer": {}
