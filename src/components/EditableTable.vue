@@ -29,12 +29,14 @@
                   <v-row>
                     <v-col cols="12" sm="7" md="4">
                       <v-text-field v-model="editedItem.name" label="Car name"></v-text-field>
+                      <v-label v-if="validationError.name">Name is a required field.</v-label>
                     </v-col>
                     <v-col cols="12" sm="2" md="2">
                       <v-text-field v-model="editedItem.count" label="Count"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="9" md="6">
                       <v-text-field v-model="editedItem.time" label="Time"></v-text-field>
+                      <v-label v-if="validationError.time">Time has to be in ISO861</v-label>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -71,6 +73,10 @@ export default {
     errorMessage: "",
     loading: false,
     dialog: false,
+    validationError: {
+      name: false,
+      time: false
+    },
     headers: [
       {
         text: "Car name",
@@ -124,6 +130,18 @@ export default {
         this.errorOccurred = false;
       }, ERR_MSG_TIMEOUT);
     },
+    validateData() {
+      if (!this.editedItem.name) this.validationError.name = true;
+      else this.validationError.name = false;
+      if (!Date.parse(this.editedItem.time)) this.validationError.time = true;
+      else this.validationError.time = false;
+
+      if (!this.validationError.name && !this.validationError.time) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     deleteItem(item) {
       if (confirm("Are you sure you want to delete this item?") === true) {
         axios
@@ -143,6 +161,10 @@ export default {
     },
     close() {
       this.dialog = false;
+
+      this.validationError.name = false;
+      this.validationError.time = false;
+
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
@@ -161,52 +183,55 @@ export default {
         });
     },
     save() {
-      this.loading = true;
+      //save only if data is valid
+      if (this.validateData()) {
+        this.loading = true;
 
-      if (this.editedItem.count)
-        this.editedItem.count = Number(this.editedItem.count);
+        if (this.editedItem.count)
+          this.editedItem.count = Number(this.editedItem.count);
 
-      //update a entry
-      if (this.editedIndex > -1) {
-        Object.assign(this.cars[this.editedIndex], this.editedItem);
+        //update a entry
+        if (this.editedIndex > -1) {
+          axios
+            .put(
+              `http://localhost:3000/cars/${this.editedItem._id}`,
+              this.editedItem
+            )
+            .then(response => {
+              Object.assign(this.cars[this.editedIndex], this.editedItem);
 
-        axios
-          .put(
-            `http://localhost:3000/cars/${this.editedItem._id}`,
-            this.editedItem
-          )
-          .then(response => {
-            this.loading = false;
-            this.close();
-          })
-          .catch(error => {
-            this.loading = false;
-            this.close();
-            console.log(error);
+              this.loading = false;
+              this.close();
+            })
+            .catch(error => {
+              this.loading = false;
+              this.close();
+              console.log(error);
 
-            this.displayErrorMessage(
-              `Error while updating car with id: ${this.editedItem._id}`
-            );
-          });
-      }
-      //create new entry
-      else {
-        axios
-          .post("http://localhost:3000/cars", this.editedItem)
-          .then(response => {
-            //save the new Id to car obj
-            this.editedItem._id = response.data.insertedId;
-            this.cars.push(this.editedItem);
-            this.loading = false;
-            this.close();
-          })
-          .catch(error => {
-            this.loading = false;
-            this.close();
-            console.log(error);
+              this.displayErrorMessage(
+                `Error while updating car with id: ${this.editedItem._id}`
+              );
+            });
+        }
+        //create new entry
+        else {
+          axios
+            .post("http://localhost:3000/cars", this.editedItem)
+            .then(response => {
+              //save the new Id to car obj
+              this.editedItem._id = response.data.insertedId;
+              this.cars.push(this.editedItem);
+              this.loading = false;
+              this.close();
+            })
+            .catch(error => {
+              this.loading = false;
+              this.close();
+              console.log(error);
 
-            this.displayErrorMessage("Error while saving new car.");
-          });
+              this.displayErrorMessage("Error while saving new car.");
+            });
+        }
       }
     }
   }
