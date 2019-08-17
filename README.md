@@ -6,6 +6,9 @@
 docker run -it -p 8081:8080 car-sharing-app
 ```
 
+Test with:
+localhost:8081
+
 ## Build docker container from project
 
 ```
