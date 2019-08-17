@@ -33,7 +33,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+              <v-btn color="blue darken-1" :loading="loading" text @click="save">Save</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -54,6 +54,7 @@ import axios from "axios";
 
 export default {
   data: () => ({
+    loading: false,
     dialog: false,
     headers: [
       {
@@ -132,6 +133,8 @@ export default {
         });
     },
     save() {
+      this.loading = true;
+
       if (this.editedItem.count)
         this.editedItem.count = Number(this.editedItem.count);
 
@@ -144,8 +147,13 @@ export default {
             `http://localhost:3000/cars/${this.editedItem._id}`,
             this.editedItem
           )
-          .then(response => {})
+          .then(response => {
+            this.loading = false;
+            this.close();
+          })
           .catch(error => {
+            this.loading = false;
+            this.close();
             console.log(error);
           });
       }
@@ -157,12 +165,15 @@ export default {
             //save the new Id to car obj
             this.editedItem._id = response.data.insertedId;
             this.cars.push(this.editedItem);
+            this.loading = false;
+            this.close();
           })
           .catch(error => {
+            this.loading = false;
+            this.close();
             console.log(error);
           });
       }
-      this.close();
     }
   }
 };
