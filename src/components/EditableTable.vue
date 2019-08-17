@@ -17,13 +17,13 @@
             <v-card-text>
               <v-container>
                 <v-row>
-                  <v-col cols="12" sm="6" md="4">
+                  <v-col cols="12" sm="7" md="4">
                     <v-text-field v-model="editedItem.name" label="Car name"></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="6" md="4">
+                  <v-col cols="12" sm="2" md="2">
                     <v-text-field v-model="editedItem.count" label="Count"></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="6" md="4">
+                  <v-col cols="12" sm="9" md="6">
                     <v-text-field v-model="editedItem.time" label="Time"></v-text-field>
                   </v-col>
                 </v-row>
@@ -71,12 +71,12 @@ export default {
     editedItem: {
       name: "",
       count: 0,
-      time: new Date()
+      time: new Date().toISOString()
     },
     defaultItem: {
       name: "",
       count: 0,
-      time: new Date()
+      time: new Date().toISOString()
     }
   }),
   computed: {
@@ -128,10 +128,6 @@ export default {
         .get("http://localhost:3000/cars")
         .then(({ data }) => {
           this.cars = data;
-          //parse time string to correct format
-          this.cars.forEach(car => {
-            car.time = new Date(Date.parse(car.time));
-          });
         })
         .catch(error => {
           console.log(error);
