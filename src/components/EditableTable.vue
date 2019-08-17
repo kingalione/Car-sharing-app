@@ -36,7 +36,7 @@
                     </v-col>
                     <v-col cols="12" sm="9" md="6">
                       <v-text-field v-model="editedItem.time" label="Time"></v-text-field>
-                      <v-label v-if="validationError.time">Time has to be in ISO861</v-label>
+                      <v-label v-if="validationError.time">Time has to be in UTC/ISO8601</v-label>
                     </v-col>
                   </v-row>
                 </v-container>
