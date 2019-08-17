@@ -1,34 +1,41 @@
-# table-app
+# car-sharing-app
+
+## Start app with docker container
+
+```
+docker run -it -p 8081:8080 car-sharing-app
+```
+
+## Build docker container from project
+
+```
+docker build -t car-sharing-app .
+```
+
+# Manual way
 
 ## Project setup
+
 ```
 yarn install
 ```
 
 ### Compiles and hot-reloads for development
+
 ```
 yarn run serve
 ```
 
 ### Compiles and minifies for production
+
 ```
 yarn run build
 ```
 
-### Run your tests
-```
-yarn run test
-```
-
 ### Lints and fixes files
+
 ```
 yarn run lint
 ```
 
-### Run your unit tests
-```
-yarn run test:unit
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Copyright 2019: Ali Karadag
