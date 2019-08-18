@@ -1,13 +1,19 @@
 # car-sharing-app
 
+## Import docker file
+
+```
+docker import car-sharing-app.tar
+```
+
 ## Start app with docker container
 
 ```
-docker run -it -p 8081:8080 car-sharing-app
+docker run -it -p 8080:8080 car-sharing-app
 ```
 
 Test with:
-localhost:8081
+localhost:8080
 
 ## Build docker container from project
 
